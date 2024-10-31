@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Escolar - Franklin Roosevelt</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            text-align: center;
+        }
+        .user-info {
+            text-align: right;
+            padding: 10px 0;
+        }
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .module-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+        }
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        .module-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        .module-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sistema de Gestión Escolar - Franklin Roosevelt</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="user-info">
+            Bienvenido, <span id="userName">Usuario</span> | <a href="#" id="logoutBtn">Cerrar sesión</a>
+        </div>
+
+        <div class="modules-grid">
+            <div class="module-card">
+                <div class="module-icon">📝</div>
+                <h2 class="module-title">Matrículas</h2>
+                <p class="module-description">Gestiona el proceso de matrícula de los estudiantes.</p>
+                <a href="#" class="btn" data-module="matriculas">Acceder</a>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">📊</div>
+                <h2 class="module-title">Registro de Notas</h2>
+                <p class="module-description">Registra y consulta las notas de los estudiantes.</p>
+                <a href="#" class="btn" data-module="notas">Acceder</a>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">📅</div>
+                <h2 class="module-title">Registro de Asistencias</h2>
+                <p class="module-description">Controla la asistencia de los estudiantes.</p>
+                <a href="#" class="btn" data-module="asistencias">Acceder</a>
+            </div>
+            <!-- Espacio para futuros módulos -->
+        </div>
+    </div>
+
+    <script>
+        // Simulación de datos de usuario
+        const user = {
+            name: "Juan Docente",
+            role: "Profesor"
+        };
+
+        // Elementos del DOM
+        const userNameElement = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const moduleButtons = document.querySelectorAll('.btn[data-module]');
+
+        // Mostrar nombre de usuario
+        userNameElement.textContent = user.name;
+
+        // Evento de cierre de sesión
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Sesión cerrada. Redirigiendo al login...');
+            window.location.href = 'login.html';
+            // Aquí iría la lógica real de cierre de sesión y redirección
+        });
+
+        // Eventos para los botones de módulos
+        moduleButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const module = e.target.getAttribute('data-module');
+                alert(`Accediendo al módulo de ${module}...`);
+                // Redirigir al módulo correspondiente
+        switch(module) {
+            case 'matriculas':
+                window.location.href = 'reg_matricula.html';
+                break;
+            case 'notas':
+                window.location.href = 'reg_notas.html';
+                break;
+            case 'asistencias':
+                window.location.href = 'reg_asis.html';
+                break;
+            default:
+                alert(`Módulo ${module} no encontrado.`);
+                }
+            });
+        });
+
+        // Función para agregar nuevos módulos dinámicamente
+        function addNewModule(title, description, icon) {
+            const modulesGrid = document.querySelector('.modules-grid');
+            const newModule = document.createElement('div');
+            newModule.className = 'module-card';
+            newModule.innerHTML = `
+                <div class="module-icon">${icon}</div>
+                <h2 class="module-title">${title}</h2>
+                <p class="module-description">${description}</p>
+                <a href="#" class="btn" data-module="${title.toLowerCase()}">Acceder</a>
+            `;
+            modulesGrid.appendChild(newModule);
+
+            // Agregar evento al nuevo botón
+            const newButton = newModule.querySelector('.btn');
+            newButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                alert(`Accediendo al módulo de ${title}...`);
+                // Aquí iría la lógica real de navegación al nuevo módulo
+            });
+        }
+
+        // Ejemplo de cómo agregar un nuevo módulo (esto podría hacerse dinámicamente en el futuro)
+        // addNewModule('Horarios', 'Gestiona los horarios de clases', '🕒');
+    </script>
+</body>
+</html>

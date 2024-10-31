@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo de Registro de Notas - Franklin Roosevelt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #e8491d 3px solid;
+        }
+        header h1 {
+            margin: 0;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: inline-block;
+            background: #e8491d;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff6a3c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #35424a;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Modulo de Registro de Notas - Franklin Roosevelt</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-group">
+            <label for="profesorSelect">Seleccione Profesor:</label>
+            <select id="profesorSelect">
+                <option value="">Seleccione un profesor</option>
+                <option value="1">Profesor Alfaro Peña</option>
+                <option value="2">Profesor Bravo Ariza</option>
+                <option value="3">Profesor Cam Paucar</option>
+                <option value="4">Profesor Delgado Rios</option>
+                <option value="5">Profesor Huamani Cordova</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cursoSelect">Seleccione Curso:</label>
+            <select id="cursoSelect" disabled>
+                <option value="">Seleccione un curso</option>
+            </select>
+        </div>
+        <div id="alumnosTable" class="hidden">
+            <h2>Lista de Alumnos</h2>
+            <table id="notasTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Parcial 1</th>
+                        <th>Parcial 2</th>
+                        <th>Final</th>
+                        <th>Promedio</th>
+                    </tr>
+                </thead>
+                <tbody id="notasBody">
+                </tbody>
+            </table>
+            <button id="guardarNotas">Guardar Notas</button>
+            <button id="generarReporte">Generar Reporte</button>
+        </div>
+        <div id="reporte" class="hidden">
+            <h2>Reporte de Notas</h2>
+            <p>Profesor: <span id="reporteProfesor"></span></p>
+            <p>Curso: <span id="reporteCurso"></span></p>
+            <table id="reporteTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Promedio</th>
+                    </tr>
+                </thead>
+                <tbody id="reporteBody">
+                </tbody>
+            </table>
+            <button id="volverNotas">Volver a Notas</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo (simulando una base de datos)
+        const profesores = {
+            1: { nombre: "Profesor Alfaro Peña", cursos: ["Desarrollo personal, ciudadanía y cívica", "Ciencias sociales"] },
+            2: { nombre: "Profesor Bravo Ariza", cursos: ["Educación para el trabajo", "Educación física"] },
+            3: { nombre: "Profesor Cam Paucar", cursos: ["Comunicación", "Arte y cultura"] },
+            4: { nombre: "Profesor Delgado Rios", cursos: ["Inglés como lengua extranjera", "Matemática"] },
+            5: { nombre: "Profesor Huamani Cordova", cursos: ["Ciencia y tecnología", "Economía"] }
+        };
+
+        const alumnos = [
+            "Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Luis Rodríguez",
+            "Laura Sánchez", "Pedro Ramírez", "Sofia Torres", "Diego Herrera", "Valentina Castro"
+        ];
+
+        // Elementos del DOM
+        const profesorSelect = document.getElementById('profesorSelect');
+        const cursoSelect = document.getElementById('cursoSelect');
+        const alumnosTable = document.getElementById('alumnosTable');
+        const notasBody = document.getElementById('notasBody');
+        const guardarNotasBtn = document.getElementById('guardarNotas');
+        const generarReporteBtn = document.getElementById('generarReporte');
+        const reporte = document.getElementById('reporte');
+        const reporteProfesor = document.getElementById('reporteProfesor');
+        const reporteCurso = document.getElementById('reporteCurso');
+        const reporteBody = document.getElementById('reporteBody');
+        const volverNotasBtn = document.getElementById('volverNotas');
+
+        // Event Listeners
+        profesorSelect.addEventListener('change', cargarCursos);
+        cursoSelect.addEventListener('change', cargarAlumnos);
+        guardarNotasBtn.addEventListener('click', guardarNotas);
+        generarReporteBtn.addEventListener('click', generarReporte);
+        volverNotasBtn.addEventListener('click', volverANotas);
+
+        // Funciones
+        function cargarCursos() {
+            const profesorId = profesorSelect.value;
+            cursoSelect.innerHTML = '<option value="">Seleccione un curso</option>';
+            if (profesorId) {
+                profesores[profesorId].cursos.forEach(curso => {
+                    const option = document.createElement('option');
+                    option.value = curso;
+                    option.textContent = curso;
+                    cursoSelect.appendChild(option);
+                });
+                cursoSelect.disabled = false;
+            } else {
+                cursoSelect.disabled = true;
+            }
+            alumnosTable.classList.add('hidden');
+        }
+
+        function cargarAlumnos() {
+            const curso = cursoSelect.value;
+            if (curso) {
+                notasBody.innerHTML = '';
+                alumnos.forEach(alumno => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${alumno}</td>
+                        <td><input type="number" min="0" max="20" step="0.1" class="nota parcial1"></td>
+                        <td><input type="number" min="0" max="20" step="0.1" class="nota parcial2"></td>
+                        <td><input type="number" min="0" max="20" step="0.1" class="nota final"></td>
+                        <td class="promedio"></td>
+                    `;
+                    notasBody.appendChild(tr);
+                });
+                alumnosTable.classList.remove('hidden');
+                cargarNotasGuardadas();
+            } else {
+                alumnosTable.classList.add('hidden');
+            }
+        }
+
+        function calcularPromedio(parcial1, parcial2, final) {
+            return ((parcial1 + parcial2 + final) / 3).toFixed(2);
+        }
+
+        function guardarNotas() {
+            const profesorId = profesorSelect.value;
+            const curso = cursoSelect.value;
+            const notas = {};
+            document.querySelectorAll('#notasBody tr').forEach(tr => {
+                const alumno = tr.querySelector('td').textContent;
+                const parcial1 = parseFloat(tr.querySelector('.parcial1').value) || 0;
+                const parcial2 = parseFloat(tr.querySelector('.parcial2').value) || 0;
+                const final = parseFloat(tr.querySelector('.final').value) || 0;
+                const promedio = calcularPromedio(parcial1, parcial2, final);
+                tr.querySelector('.promedio').textContent = promedio;
+                notas[alumno] = { parcial1, parcial2, final, promedio };
+            });
+            localStorage.setItem(`notas_${profesorId}_${curso}`, JSON.stringify(notas));
+            alert('Notas guardadas correctamente');
+        }
+
+        function cargarNotasGuardadas() {
+            const profesorId = profesorSelect.value;
+            const curso = cursoSelect.value;
+            const notasGuardadas = JSON.parse(localStorage.getItem(`notas_${profesorId}_${curso}`)) || {};
+            document.querySelectorAll('#notasBody tr').forEach(tr => {
+                const alumno = tr.querySelector('td').textContent;
+                if (notasGuardadas[alumno]) {
+                    tr.querySelector('.parcial1').value = notasGuardadas[alumno].parcial1;
+                    tr.querySelector('.parcial2').value = notasGuardadas[alumno].parcial2;
+                    tr.querySelector('.final').value = notasGuardadas[alumno].final;
+                    tr.querySelector('.promedio').textContent = notasGuardadas[alumno].promedio;
+                }
+            });
+        }
+
+        function generarReporte() {
+            const profesorId = profesorSelect.value;
+            const curso = cursoSelect.value;
+            const notasGuardadas = JSON.parse(localStorage.getItem(`notas_${profesorId}_${curso}`)) || {};
+            
+            reporteProfesor.textContent = profesores[profesorId].nombre;
+            reporteCurso.textContent = curso;
+            reporteBody.innerHTML = '';
+            
+            Object.entries(notasGuardadas).forEach(([alumno, notas]) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${alumno}</td>
+                    <td>${notas.promedio}</td>
+                `;
+                reporteBody.appendChild(tr);
+            });
+            
+            alumnosTable.classList.add('hidden');
+            reporte.classList.remove('hidden');
+        }
+
+        function volverANotas() {
+            reporte.classList.add('hidden');
+            alumnosTable.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

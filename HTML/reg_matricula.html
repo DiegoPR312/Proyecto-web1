@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo de Matrículas - Franklin Roosevelt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #e8491d 3px solid;
+        }
+        header h1 {
+            margin: 0;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        form, .info-section {
+            background: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #e8491d;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #ff6a3c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Modulo de Matrículas - Franklin Roosevelt</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="matriculaSystem">
+            <h2>Modulo de Matrículas</h2>
+            <div class="info-section">
+                <h3>Verificar Disponibilidad</h3>
+                <select id="gradeSelect">
+                    <option value="">Seleccione un grado</option>
+                    <option value="1">1ro de Secundaria</option>
+                    <option value="2">2do de Secundaria</option>
+                    <option value="3">3ro de Secundaria</option>
+                    <option value="4">4to de Secundaria</option>
+                    <option value="5">5to de Secundaria</option>
+                </select>
+                <button id="checkAvailability">Verificar Disponibilidad</button>
+                <div id="availabilityInfo" class="hidden"></div>
+            </div>
+            <form id="matriculaForm" class="hidden">
+                <h3>Datos del Estudiante</h3>
+                <input type="text" id="studentName" placeholder="Nombre del Estudiante" required>
+                <input type="text" id="studentId" placeholder="ID del Estudiante" required>
+                <input type="number" id="studentAge" placeholder="Edad" required>
+                <h3>Detalles de Matrícula</h3>
+                <p>Grado: <span id="selectedGrade"></span></p>
+                <input type="number" id="cost" placeholder="Costo de Matrícula" required>
+                <button type="submit">Generar Matrícula</button>
+            </form>
+            <div id="paymentInfo" class="hidden info-section">
+                <h3>Información de Pago</h3>
+                <p>Total a pagar: $<span id="totalCost"></span></p>
+                <button id="payButton">Realizar Pago</button>
+            </div>
+            <div id="receipt" class="hidden info-section">
+                <h3>Comprobante de Pago</h3>
+                <p>Estudiante: <span id="receiptName"></span></p>
+                <p>Grado: <span id="receiptGrade"></span></p>
+                <p>Monto pagado: $<span id="receiptAmount"></span></p>
+                <p>Fecha: <span id="receiptDate"></span></p>
+                <button id="printReceipt">Imprimir Comprobante</button>
+                <button id="registerAnother">Registrar otro estudiante</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulación de base de datos local
+        const availableSpots = {
+            1: 30, // 1ro de Secundaria
+            2: 30, // 2do de Secundaria
+            3: 30, // 3ro de Secundaria
+            4: 30, // 4to de Secundaria
+            5: 30  // 5to de Secundaria
+        };
+
+        // Elementos del DOM
+        const gradeSelect = document.getElementById('gradeSelect');
+        const checkAvailabilityBtn = document.getElementById('checkAvailability');
+        const availabilityInfo = document.getElementById('availabilityInfo');
+        const matriculaForm = document.getElementById('matriculaForm');
+        const selectedGradeSpan = document.getElementById('selectedGrade');
+        const paymentInfo = document.getElementById('paymentInfo');
+        const payButton = document.getElementById('payButton');
+        const receipt = document.getElementById('receipt');
+        const printReceiptBtn = document.getElementById('printReceipt');
+        const registerAnotherBtn = document.getElementById('registerAnother');
+
+        // Verificar disponibilidad
+        checkAvailabilityBtn.addEventListener('click', () => {
+            const selectedGrade = gradeSelect.value;
+            if (selectedGrade) {
+                const spots = availableSpots[selectedGrade];
+                availabilityInfo.textContent = `Cupos disponibles para ${gradeSelect.options[gradeSelect.selectedIndex].text}: ${spots}`;
+                availabilityInfo.classList.remove('hidden');
+                if (spots > 0) {
+                    matriculaForm.classList.remove('hidden');
+                    selectedGradeSpan.textContent = gradeSelect.options[gradeSelect.selectedIndex].text;
+                } else {
+                    matriculaForm.classList.add('hidden');
+                }
+            } else {
+                alert('Por favor, seleccione un grado');
+            }
+        });
+
+        // Generar matrícula
+        matriculaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const cost = document.getElementById('cost').value;
+            document.getElementById('totalCost').textContent = cost;
+            paymentInfo.classList.remove('hidden');
+            matriculaForm.classList.add('hidden');
+        });
+
+        // Realizar pago
+        payButton.addEventListener('click', () => {
+            const studentName = document.getElementById('studentName').value;
+            const selectedGrade = gradeSelect.options[gradeSelect.selectedIndex].text;
+            const cost = document.getElementById('cost').value;
+            
+            document.getElementById('receiptName').textContent = studentName;
+            document.getElementById('receiptGrade').textContent = selectedGrade;
+            document.getElementById('receiptAmount').textContent = cost;
+            document.getElementById('receiptDate').textContent = new Date().toLocaleDateString();
+            
+            receipt.classList.remove('hidden');
+            paymentInfo.classList.add('hidden');
+            availableSpots[gradeSelect.value]--;
+        });
+
+        // Imprimir comprobante
+        printReceiptBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        // Registrar otro estudiante
+        registerAnotherBtn.addEventListener('click', () => {
+            // Reiniciar el formulario
+            matriculaForm.reset();
+            gradeSelect.value = "";
+            availabilityInfo.classList.add('hidden');
+            matriculaForm.classList.add('hidden');
+            paymentInfo.classList.add('hidden');
+            receipt.classList.add('hidden');
+            
+            // Volver a la vista principal
+            window.scrollTo(0, 0);
+        });
+    </script>
+</body>
+</html>

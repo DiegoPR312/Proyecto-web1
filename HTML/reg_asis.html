@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo de Registro de Asistencia - Franklin Roosevelt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #e8491d 3px solid;
+        }
+        header h1 {
+            margin: 0;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: inline-block;
+            background: #e8491d;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #ff6a3c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #35424a;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .asistencia-btn {
+            padding: 5px 10px;
+            margin: 0 2px;
+        }
+        .presente {
+            background-color: #4CAF50;
+        }
+        .ausente {
+            background-color: #f44336;
+        }
+        .tardanza {
+            background-color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Modulo de Registro de Asistencia - Franklin Roosevelt</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-group">
+            <label for="cursoSelect">Seleccione Curso:</label>
+            <select id="cursoSelect">
+                <option value="">Seleccione un curso</option>
+                <option value="Desarrollo personal, ciudadanía y cívica">Desarrollo personal, ciudadanía y cívica</option>
+                <option value="Ciencias sociales">Ciencias sociales</option>
+                <option value="Educación para el trabajo">Educación para el trabajo</option>
+                <option value="Educación física">Educación física</option>
+                <option value="Comunicación">Comunicación</option>
+                <option value="Arte y cultura">Arte y cultura</option>
+                <option value="Inglés como lengua extranjera">Inglés como lengua extranjera</option>
+                <option value="Matemática">Matemática</option>
+                <option value="Ciencia y tecnología">Ciencia y tecnología</option>
+                <option value="Economía">Economía</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="fechaAsistencia">Fecha de Asistencia:</label>
+            <input type="date" id="fechaAsistencia">
+        </div>
+        <button id="cargarAlumnos">Cargar Alumnos</button>
+        <div id="asistenciaTable" class="hidden">
+            <h2>Registro de Asistencia</h2>
+            <table id="asistenciaTableBody">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button id="guardarAsistencia">Guardar Asistencia</button>
+            <button id="generarReporte">Generar Reporte</button>
+        </div>
+        <div id="reporte" class="hidden">
+            <h2>Reporte de Asistencia</h2>
+            <p>Curso: <span id="reporteCurso"></span></p>
+            <p>Fecha: <span id="reporteFecha"></span></p>
+            <table id="reporteTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                        <th>Porcentaje de Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody id="reporteBody"></tbody>
+            </table>
+            <button id="volverAsistencia">Volver a Asistencia</button>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const cursoSelect = document.getElementById('cursoSelect');
+        const fechaAsistencia = document.getElementById('fechaAsistencia');
+        const cargarAlumnosBtn = document.getElementById('cargarAlumnos');
+        const asistenciaTable = document.getElementById('asistenciaTable');
+        const asistenciaTableBody = document.getElementById('asistenciaTableBody').querySelector('tbody');
+        const guardarAsistenciaBtn = document.getElementById('guardarAsistencia');
+        const generarReporteBtn = document.getElementById('generarReporte');
+        const reporte = document.getElementById('reporte');
+        const reporteCurso = document.getElementById('reporteCurso');
+        const reporteFecha = document.getElementById('reporteFecha');
+        const reporteBody = document.getElementById('reporteBody');
+        const volverAsistenciaBtn = document.getElementById('volverAsistencia');
+
+        // Datos de ejemplo (simulando una base de datos)
+        const alumnos = [
+            "Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Luis Rodríguez",
+            "Laura Sánchez", "Pedro Ramírez", "Sofia Torres", "Diego Herrera", "Valentina Castro"
+        ];
+
+        // Event Listeners
+        cargarAlumnosBtn.addEventListener('click', cargarAlumnos);
+        guardarAsistenciaBtn.addEventListener('click', guardarAsistencia);
+        generarReporteBtn.addEventListener('click', generarReporte);
+        volverAsistenciaBtn.addEventListener('click', volverAAsistencia);
+
+        // Funciones
+        function cargarAlumnos() {
+            const curso = cursoSelect.value;
+            const fecha = fechaAsistencia.value;
+            if (curso && fecha) {
+                asistenciaTableBody.innerHTML = '';
+                alumnos.forEach(alumno => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${alumno}</td>
+                        <td class="estado">-</td>
+                        <td>
+                            <button class="asistencia-btn presente" onclick="marcarAsistencia(this, 'Presente')">P</button>
+                            <button class="asistencia-btn ausente" onclick="marcarAsistencia(this, 'Ausente')">A</button>
+                            <button class="asistencia-btn tardanza" onclick="marcarAsistencia(this, 'Tardanza')">T</button>
+                        </td>
+                    `;
+                    asistenciaTableBody.appendChild(tr);
+                });
+                asistenciaTable.classList.remove('hidden');
+                cargarAsistenciaGuardada(curso, fecha);
+            } else {
+                alert('Por favor, seleccione un curso y una fecha');
+            }
+        }
+
+        function marcarAsistencia(btn, estado) {
+            const row = btn.closest('tr');
+            row.querySelector('.estado').textContent = estado;
+        }
+
+        function guardarAsistencia() {
+            const curso = cursoSelect.value;
+            const fecha = fechaAsistencia.value;
+            const asistencia = {};
+            document.querySelectorAll('#asistenciaTableBody tr').forEach(tr => {
+                const alumno = tr.querySelector('td').textContent;
+                const estado = tr.querySelector('.estado').textContent;
+                asistencia[alumno] = estado;
+            });
+            localStorage.setItem(`asistencia_${curso}_${fecha}`, JSON.stringify(asistencia));
+            alert('Asistencia guardada correctamente');
+        }
+
+        function cargarAsistenciaGuardada(curso, fecha) {
+            const asistenciaGuardada = JSON.parse(localStorage.getItem(`asistencia_${curso}_${fecha}`)) || {};
+            document.querySelectorAll('#asistenciaTableBody tr').forEach(tr => {
+                const alumno = tr.querySelector('td').textContent;
+                if (asistenciaGuardada[alumno]) {
+                    tr.querySelector('.estado').textContent = asistenciaGuardada[alumno];
+                }
+            });
+        }
+
+        function generarReporte() {
+            const curso = cursoSelect.value;
+            const fecha = fechaAsistencia.value;
+            const asistenciaGuardada = JSON.parse(localStorage.getItem(`asistencia_${curso}_${fecha}`)) || {};
+            
+            reporteCurso.textContent = curso;
+            reporteFecha.textContent = fecha;
+            reporteBody.innerHTML = '';
+            
+            Object.entries(asistenciaGuardada).forEach(([alumno, estado]) => {
+                const porcentaje = calcularPorcentajeAsistencia(alumno, curso);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${alumno}</td>
+                    <td>${estado}</td>
+                    <td>${porcentaje}%</td>
+                `;
+                reporteBody.appendChild(tr);
+            });
+            
+            asistenciaTable.classList.add('hidden');
+            reporte.classList.remove('hidden');
+        }
+
+        function calcularPorcentajeAsistencia(alumno, curso) {
+            let presente = 0;
+            let total = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith(`asistencia_${curso}_`)) {
+                    const asistencia = JSON.parse(localStorage.getItem(key));
+                    if (asistencia[alumno]) {
+                        total++;
+                        if (asistencia[alumno] === 'Presente') {
+                            presente++;
+                        } else if (asistencia[alumno] === 'Tardanza') {
+                            presente += 0.5;
+                        }
+                    }
+                }
+            }
+            return total > 0 ? Math.round((presente / total) * 100) : 0;
+        }
+
+        function volverAAsistencia() {
+            reporte.classList.add('hidden');
+            asistenciaTable.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
